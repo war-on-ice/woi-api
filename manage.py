@@ -9,10 +9,7 @@ from flask_test.user.models import User
 from flask_test.settings import DevConfig, ProdConfig
 from flask_test.database import db
 
-if os.environ.get("flask_test_ENV") == 'prod':
-    app = create_app(ProdConfig)
-else:
-    app = create_app(DevConfig)
+app = create_app(ProdConfig)
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 TEST_PATH = os.path.join(HERE, 'tests')

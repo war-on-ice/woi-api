@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """The app module, containing the app factory function."""
-from flask import Flask, render_template
+from flask import Flask, render_template, g
+from flask_restful import Api
 
 from flask_test.settings import ProdConfig
 from flask_test.assets import assets
@@ -11,10 +12,12 @@ from flask_test.extensions import (
     login_manager,
     migrate,
     debug_toolbar,
-    restful,
 )
 from flask_test import public, user
+from flask_test.player.resource import PlayerListResource, PlayerResource
 
+from contextlib import closing
+from sqlalchemy import create_engine
 
 def create_app(config_object=ProdConfig):
     """An application factory, as explained here:
@@ -27,8 +30,13 @@ def create_app(config_object=ProdConfig):
     register_extensions(app)
     register_blueprints(app)
     register_errorhandlers(app)
+    register_resources(app)
     return app
 
+def register_resources(app):
+    api = Api(app, prefix='/rest', catch_all_404s=True)
+    api.add_resource(PlayerListResource, '/players', '/players/')
+    api.add_resource(PlayerResource, '/players/<string:resource_id>', '/players/<string:resource_id>/')
 
 def register_extensions(app):
     assets.init_app(app)
@@ -38,15 +46,12 @@ def register_extensions(app):
     login_manager.init_app(app)
     debug_toolbar.init_app(app)
     migrate.init_app(app, db)
-    restful.init_app(app)
     return None
-
 
 def register_blueprints(app):
     app.register_blueprint(public.views.blueprint)
     app.register_blueprint(user.views.blueprint)
     return None
-
 
 def register_errorhandlers(app):
     def render_error(error):
@@ -56,3 +61,4 @@ def register_errorhandlers(app):
     for errcode in [401, 404, 500]:
         app.errorhandler(errcode)(render_error)
     return None
+

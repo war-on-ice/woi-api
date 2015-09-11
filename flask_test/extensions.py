@@ -3,8 +3,8 @@
 in app.py
 """
 
-from flask.ext import Restful
-api = Restful()
+from flask_restful import Api
+restful = Api()
 
 from flask_bcrypt import Bcrypt
 bcrypt = Bcrypt()
